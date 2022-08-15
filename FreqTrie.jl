@@ -1,4 +1,4 @@
-using progressMeter
+using ProgressMeter
 #creating the custom counting node structure.
 mutable struct CTNode
     letter::Char
@@ -52,7 +52,7 @@ function Tadd(trie::CTNode, seqs::Vector{String}, ret::Bool = false)
         return trie
     end
 end
-
+``` this one seems to destroy ur computer RAM for large data
 function createCT(seqs::Vector{String}, ret::Bool = false)
     trie = InitCountTrie()
     @showprogress for seq in seqs
@@ -63,7 +63,7 @@ function createCT(seqs::Vector{String}, ret::Bool = false)
     end
 
 end
-
+```
 Tadd(testTrie,["GATCGATC","TGCATCA"])
 testTrie
 
@@ -72,7 +72,15 @@ function VisTrie(trie::CTNode)
 end
 
 #testing function on IgM data from another script.
-@time IgM_B_countTrie = Tadd(InitCountTrie(),MBnsa,true)
-@time IgM_A_countTrie = createCT(MAnsa,true)
+@time IgM_B_countTrie = Tadd(InitCountTrie(),MBnsa) #0.118122 seconds (2.14 M allocations: 211.668 MiB)
+@time IgM_A_countTrie = Tadd(InitCountTrie(),MAnsa) #
 
-#work in progress. Simple functions to take away, track, visualize, etc. are on the way. 
+#so it absolutely destroys all your RAM usage for 345k strings of around 600 in length and even more if you try to print to REPL. To prevent this, this makes sure you dont ever try printing to REPL.
+function Base.show(io::IO, z::CTNode)
+    println(io, "CTNode")
+    for f in fieldnames(typeof(z))
+        println(io, isdefined(z,f), "\t",f)
+    end
+end
+
+#work in progress. Simple functions to take away, track, visualize, etc. are on the way.
